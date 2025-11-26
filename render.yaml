@@ -1,0 +1,9 @@
+# Example render.yaml for deploying backend on Render
+services:
+  - type: web
+    name: ricogpa-backend
+    env: node
+    plan: free
+    buildCommand: 'cd backend && npm install'
+    startCommand: 'cd backend && npm start'
+    repo: 'REPLACE_WITH_YOUR_REPOSITORY_URL'

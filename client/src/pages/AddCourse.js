@@ -4,14 +4,16 @@ import API from '../api';
 
 const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
-const TYPES = ['Full', 'Half'];
+
+// Credit hours auto-fill: Full = 3, Half = 2
+const CREDIT_MAP = { Full: 3, Half: 2 };
 
 export default function AddCourse() {
   const [form, setForm] = useState({
     name: '',
     year: 'Year 1',
     courseType: 'Full',
-    creditHours: '',
+    creditHours: 3,
     grade: 'A+',
   });
   const [error, setError] = useState('');
@@ -19,7 +21,12 @@ export default function AddCourse() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'courseType') {
+      setForm({ ...form, courseType: value, creditHours: CREDIT_MAP[value] });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -32,7 +39,7 @@ export default function AddCourse() {
         creditHours: Number(form.creditHours),
       });
       setSuccess('Course added!');
-      setForm({ name: '', year: 'Year 1', courseType: 'Full', creditHours: '', grade: 'A+' });
+      setForm({ name: '', year: 'Year 1', courseType: 'Full', creditHours: 3, grade: 'A+' });
       setTimeout(() => navigate('/'), 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to add course');
@@ -56,7 +63,8 @@ export default function AddCourse() {
           {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
         <select name="courseType" value={form.courseType} onChange={handleChange}>
-          {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          <option value="Full">Full (3 credits)</option>
+          <option value="Half">Half (2 credits)</option>
         </select>
         <input
           name="creditHours"

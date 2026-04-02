@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api';
 
-const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C'];
+const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'NE', 'P', 'F', 'LT', 'INC'];
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
 
 // UNZA: Full course = 1 unit, Half course = 0.5 units

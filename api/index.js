@@ -1,9 +1,9 @@
-const express = require('../server/node_modules/express');
-const cors = require('../server/node_modules/cors');
-const bcrypt = require('../server/node_modules/bcryptjs');
-const jwt = require('../server/node_modules/jsonwebtoken');
-const { PrismaClient } = require('../server/node_modules/@prisma/client');
-const { PrismaPg } = require('../server/node_modules/@prisma/adapter-pg');
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
 const { GRADE_MAP, CLASSIFICATIONS } = require('../server/utils/gradeMap');
 
 // --- Database ---

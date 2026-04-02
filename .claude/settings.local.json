@@ -23,7 +23,8 @@
       "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_kvgFznoN18BP@ep-dark-base-ani5am6r-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npx next build)",
       "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); console.log\\(''OK''\\); p.$disconnect\\(\\);\")",
       "Bash(ls /Users/macbook/Desktop/flare/lib/generated/prisma/*.ts)",
-      "Bash(curl -s --max-time 5 https://ep-shiny-lake-amxar5po-pooler.c-5.us-east-1.aws.neon.tech)"
+      "Bash(curl -s --max-time 5 https://ep-shiny-lake-amxar5po-pooler.c-5.us-east-1.aws.neon.tech)",
+      "Bash(git add:*)"
     ]
   }
 }

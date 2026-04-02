@@ -115,8 +115,15 @@ app.get('/api/gpa/me', auth, async (req, res) => {
     const { gpa, totalCredits } = calcGPA(courses);
     const byYear = {};
     for (const c of courses) {
-      if (!byYear[c.year]) byYear[c.year] = [];
-      byYear[c.year].push({ ...c, creditHours: c.credit_hours, gradePoints: c.grade_points, courseType: c.course_type });
+      if (!byYear[c.year]) byYear[c.year] = { courses: [], gpa: 0, totalCredits: 0 };
+      byYear[c.year].courses.push({ ...c, creditHours: c.credit_hours, gradePoints: c.grade_points, courseType: c.course_type });
+    }
+    // Calculate GPA per year
+    for (const year of Object.keys(byYear)) {
+      const yearData = byYear[year];
+      const yearCalc = calcGPA(yearData.courses.map(c => ({ credit_hours: c.creditHours, grade_points: c.gradePoints })));
+      yearData.gpa = yearCalc.gpa;
+      yearData.totalCredits = yearCalc.totalCredits;
     }
     res.json({ gpa, totalCredits, totalCourses: courses.length, byYear });
   } catch (err) {

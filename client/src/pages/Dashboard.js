@@ -43,8 +43,14 @@ export default function Dashboard() {
 
       <h2>Courses by Year</h2>
       {years.map((year) =>
-        data.byYear[year] && data.byYear[year].length > 0 ? (
-          <YearCard key={year} year={year} courses={data.byYear[year]} />
+        data.byYear[year] && data.byYear[year].courses.length > 0 ? (
+          <YearCard
+            key={year}
+            year={year}
+            courses={data.byYear[year].courses}
+            yearGPA={data.byYear[year].gpa}
+            yearCredits={data.byYear[year].totalCredits}
+          />
         ) : null
       )}
       {data.totalCourses === 0 && <p>No courses added yet. Go to Add Course to get started.</p>}

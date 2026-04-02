@@ -231,6 +231,34 @@ table input, table select {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+.year-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.year-header h3 {
+  margin: 0;
+}
+
+.year-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.year-gpa {
+  color: #1a1a2e;
+}
+
+.year-credits {
+  color: #888;
+}
+
 .year-card h3 {
   margin-bottom: 12px;
   color: #1a1a2e;

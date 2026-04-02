@@ -20,7 +20,7 @@ model Course {
   name        String
   year        String
   courseType   String   @map("course_type")
-  creditHours Int      @map("credit_hours")
+  creditHours Float    @map("credit_hours")
   grade       String
   gradePoints Float    @map("grade_points")
   createdAt   DateTime @default(now())

@@ -56,7 +56,12 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/api', (req, res) => res.json({ status: 'RICOGPA API running' }));
+app.get('/api', (req, res) => res.json({
+  status: 'RICOGPA API running',
+  hasDB: !!process.env.DATABASE_URL,
+  hasJWT: !!process.env.JWT_SECRET,
+  envKeys: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('JWT') || k.includes('VERCEL'))
+}));
 
 // --- Auth Routes ---
 app.post('/api/auth/register', async (req, res) => {

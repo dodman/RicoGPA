@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof -i :3000 -sTCP:LISTEN)",
+      "Bash(lsof -i :5000 -sTCP:LISTEN)",
+      "Bash(brew services:*)",
+      "Bash(mongod --dbpath /usr/local/var/mongodb --fork --logpath /usr/local/var/log/mongodb/mongo.log)",
+      "Bash(brew list:*)",
+      "Bash(node -e \":*)",
+      "Bash(gh auth:*)",
+      "Bash(git -C /Users/macbook/Desktop/RicoGPA remote -v)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(mkdir -p lib models components app/login app/register app/dashboard app/feed app/discover app/matches app/edit-profile app/profile)",
+      "Bash(mkdir -p \"app/messages/[id]\" \"app/profile/[id]\")",
+      "Bash(mkdir -p app/api/auth/register app/api/auth/login app/api/users/me)",
+      "Bash(mkdir -p \"app/api/users/[id]\" \"app/api/posts/[id]/like\" \"app/api/follow/[userId]\")",
+      "Bash(mkdir -p app/api/discover app/api/swipe app/api/matches app/api/conversations app/api/messages)",
+      "Bash(npm install:*)",
+      "Bash(npx next:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx prisma:*)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_kvgFznoN18BP@ep-dark-base-ani5am6r-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npx next build)",
+      "Bash(node -e \"const { PrismaClient } = require\\(''@prisma/client''\\); const p = new PrismaClient\\(\\); console.log\\(''OK''\\); p.$disconnect\\(\\);\")",
+      "Bash(ls /Users/macbook/Desktop/flare/lib/generated/prisma/*.ts)",
+      "Bash(curl -s --max-time 5 https://ep-shiny-lake-amxar5po-pooler.c-5.us-east-1.aws.neon.tech)"
+    ]
+  }
+}

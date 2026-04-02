@@ -1,0 +1,31 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  courses   Course[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  name        String
+  year        String
+  courseType   String   @map("course_type")
+  creditHours Int      @map("credit_hours")
+  grade       String
+  gradePoints Float    @map("grade_points")
+  createdAt   DateTime @default(now())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("courses")
+}

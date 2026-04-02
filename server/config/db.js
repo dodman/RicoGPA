@@ -1,13 +1,14 @@
-const mongoose = require('mongoose');
+const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log('MongoDB connected');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    process.exit(1);
+let prisma;
+
+function getDB() {
+  if (!prisma) {
+    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    prisma = new PrismaClient({ adapter });
   }
-};
+  return prisma;
+}
 
-module.exports = connectDB;
+module.exports = { getDB };

@@ -1,11 +1,11 @@
 const express = require('express');
-const Course = require('../models/Course');
 const auth = require('../middleware/auth');
+const { getDB } = require('../config/db');
 const { GRADE_MAP, CLASSIFICATIONS } = require('../utils/gradeMap');
 
 const router = express.Router();
 
-// All routes below require authentication
+// All routes require authentication
 router.use(auth);
 
 // Helper: calculate GPA from a list of courses
@@ -27,7 +27,12 @@ function calcGPA(courses) {
 // GET /api/gpa/me — dashboard summary
 router.get('/me', async (req, res) => {
   try {
-    const courses = await Course.find({ userId: req.userId }).sort({ createdAt: -1 });
+    const db = getDB();
+    const courses = await db.course.findMany({
+      where: { userId: req.userId },
+      orderBy: { createdAt: 'desc' },
+    });
+
     const { gpa, totalCredits } = calcGPA(courses);
 
     // Group by year
@@ -44,6 +49,7 @@ router.get('/me', async (req, res) => {
       byYear,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -51,9 +57,14 @@ router.get('/me', async (req, res) => {
 // GET /api/gpa/courses — all courses for user
 router.get('/courses', async (req, res) => {
   try {
-    const courses = await Course.find({ userId: req.userId }).sort({ year: 1, createdAt: -1 });
+    const db = getDB();
+    const courses = await db.course.findMany({
+      where: { userId: req.userId },
+      orderBy: [{ year: 'asc' }, { createdAt: 'desc' }],
+    });
     res.json(courses);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -61,6 +72,7 @@ router.get('/courses', async (req, res) => {
 // POST /api/gpa/add-course
 router.post('/add-course', async (req, res) => {
   try {
+    const db = getDB();
     const { name, year, courseType, creditHours, grade } = req.body;
 
     if (!name || !year || !courseType || !creditHours || !grade) {
@@ -72,18 +84,21 @@ router.post('/add-course', async (req, res) => {
       return res.status(400).json({ message: 'Invalid grade' });
     }
 
-    const course = await Course.create({
-      userId: req.userId,
-      name,
-      year,
-      courseType,
-      creditHours: Number(creditHours),
-      grade,
-      gradePoints,
+    const course = await db.course.create({
+      data: {
+        userId: req.userId,
+        name,
+        year,
+        courseType,
+        creditHours: Number(creditHours),
+        grade,
+        gradePoints,
+      },
     });
 
     res.status(201).json(course);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -91,13 +106,19 @@ router.post('/add-course', async (req, res) => {
 // DELETE /api/gpa/course/:id
 router.delete('/course/:id', async (req, res) => {
   try {
-    const course = await Course.findOne({ _id: req.params.id, userId: req.userId });
+    const db = getDB();
+
+    const course = await db.course.findFirst({
+      where: { id: req.params.id, userId: req.userId },
+    });
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    await course.deleteOne();
+
+    await db.course.delete({ where: { id: req.params.id } });
     res.json({ message: 'Course deleted' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -105,6 +126,7 @@ router.delete('/course/:id', async (req, res) => {
 // GET /api/gpa/forecast?target=distinction&remainingCredits=60
 router.get('/forecast', async (req, res) => {
   try {
+    const db = getDB();
     const { target, remainingCredits } = req.query;
     const remaining = Number(remainingCredits) || 60;
 
@@ -113,7 +135,7 @@ router.get('/forecast', async (req, res) => {
       return res.status(400).json({ message: 'Invalid target. Use: pass, credit, merit, distinction' });
     }
 
-    const courses = await Course.find({ userId: req.userId });
+    const courses = await db.course.findMany({ where: { userId: req.userId } });
     const { gpa, totalCredits, totalPoints } = calcGPA(courses);
 
     const targetGPA = classification.minGPA;
@@ -121,14 +143,12 @@ router.get('/forecast', async (req, res) => {
     const neededPoints = neededTotal - totalPoints;
     const neededGPA = remaining > 0 ? +(neededPoints / remaining).toFixed(4) : 0;
 
-    // Find the closest grade label for advice
     let advice = '';
     if (neededGPA <= 0) {
       advice = `You have already reached ${classification.label}! Keep it up.`;
     } else if (neededGPA > 5.0) {
       advice = `Unfortunately, reaching ${classification.label} is not possible with ${remaining} remaining credits. Consider adding more credits or adjusting your target.`;
     } else {
-      // Find the minimum grade needed
       const sorted = Object.entries(GRADE_MAP).sort((a, b) => a[1] - b[1]);
       let gradeLabel = 'A+';
       for (const [label, pts] of sorted) {
@@ -150,6 +170,7 @@ router.get('/forecast', async (req, res) => {
       advice,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });

@@ -4,16 +4,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { neon } = require('@neondatabase/serverless');
 
-// Grade mapping
+// UNZA Current Course Grading System
 const GRADE_MAP = {
-  'A+': 5.0, 'A': 5.0, 'B+': 4.0, 'B': 3.0,
-  'C+': 2.0, 'C': 1.0, 'D': 0.5, 'F': 0.0,
+  'A+': 5,   // 90-100%
+  'A':  4,   // 80-89%
+  'B+': 3,   // 70-79%
+  'B':  2,   // 60-69%
+  'C+': 1,   // 50-59%
+  'C':  0,   // 45-49%
 };
 const CLASSIFICATIONS = {
-  distinction: { label: 'Distinction', minGPA: 4.0 },
-  merit:       { label: 'Merit',       minGPA: 3.0 },
-  credit:      { label: 'Credit',      minGPA: 2.0 },
-  pass:        { label: 'Pass',        minGPA: 1.0 },
+  distinction: { label: 'Distinction',  minGPA: 3.75 },
+  merit:       { label: 'Meritorious',  minGPA: 3.25 },
+  credit:      { label: 'Credit',       minGPA: 2.68 },
+  pass:        { label: 'Pass',         minGPA: 0 },
 };
 
 // --- Database ---

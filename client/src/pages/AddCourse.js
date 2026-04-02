@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api';
 
-const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C'];
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
 
-// Credit hours auto-fill: Full = 3, Half = 2
-const CREDIT_MAP = { Full: 3, Half: 2 };
+// UNZA: Full course = 1 unit, Half course = 0.5 units
+const CREDIT_MAP = { Full: 1, Half: 0.5 };
 
 export default function AddCourse() {
   const [form, setForm] = useState({
     name: '',
     year: 'Year 1',
     courseType: 'Full',
-    creditHours: 3,
+    creditHours: 1,
     grade: 'A+',
   });
   const [error, setError] = useState('');
@@ -39,7 +39,7 @@ export default function AddCourse() {
         creditHours: Number(form.creditHours),
       });
       setSuccess('Course added!');
-      setForm({ name: '', year: 'Year 1', courseType: 'Full', creditHours: 3, grade: 'A+' });
+      setForm({ name: '', year: 'Year 1', courseType: 'Full', creditHours: 1, grade: 'A+' });
       setTimeout(() => navigate('/'), 1000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to add course');
@@ -63,18 +63,9 @@ export default function AddCourse() {
           {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
         </select>
         <select name="courseType" value={form.courseType} onChange={handleChange}>
-          <option value="Full">Full (3 credits)</option>
-          <option value="Half">Half (2 credits)</option>
+          <option value="Full">Full Course (1 unit)</option>
+          <option value="Half">Half Course (0.5 units)</option>
         </select>
-        <input
-          name="creditHours"
-          type="number"
-          placeholder="Credit Hours"
-          value={form.creditHours}
-          onChange={handleChange}
-          min="1"
-          required
-        />
         <select name="grade" value={form.grade} onChange={handleChange}>
           {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
         </select>

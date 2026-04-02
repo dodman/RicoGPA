@@ -1,9 +1,9 @@
 export default function YearCard({ year, courses, yearGPA, yearCredits }) {
   const classify =
-    yearGPA >= 4.0 ? 'Distinction' :
-    yearGPA >= 3.0 ? 'Merit' :
-    yearGPA >= 2.0 ? 'Credit' :
-    yearGPA >= 1.0 ? 'Pass' : 'Below Pass';
+    yearGPA >= 3.75 ? 'Distinction' :
+    yearGPA >= 3.25 ? 'Meritorious' :
+    yearGPA >= 2.68 ? 'Credit' :
+    'Pass';
 
   return (
     <div className="year-card">

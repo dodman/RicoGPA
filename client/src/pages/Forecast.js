@@ -2,15 +2,15 @@ import { useState } from 'react';
 import API from '../api';
 
 const TARGETS = [
-  { value: 'pass', label: 'Pass (1.0 GPA)' },
-  { value: 'credit', label: 'Credit (2.0 GPA)' },
-  { value: 'merit', label: 'Merit (3.0 GPA)' },
-  { value: 'distinction', label: 'Distinction (4.0 GPA)' },
+  { value: 'pass', label: 'Pass' },
+  { value: 'credit', label: 'Credit (2.68 GPA)' },
+  { value: 'merit', label: 'Meritorious (3.25 GPA)' },
+  { value: 'distinction', label: 'Distinction (3.75 GPA)' },
 ];
 
 export default function Forecast() {
   const [target, setTarget] = useState('distinction');
-  const [remainingCredits, setRemainingCredits] = useState(60);
+  const [remainingCredits, setRemainingCredits] = useState(8);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
@@ -43,12 +43,13 @@ export default function Forecast() {
           </select>
         </label>
         <label>
-          Remaining Credit Hours
+          Remaining Course Units (e.g. 8 full courses = 8)
           <input
             type="number"
             value={remainingCredits}
             onChange={(e) => setRemainingCredits(e.target.value)}
-            min="1"
+            min="0.5"
+            step="0.5"
             required
           />
         </label>

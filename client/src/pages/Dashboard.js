@@ -14,10 +14,10 @@ export default function Dashboard() {
   if (!data) return <div className="loading">Loading dashboard...</div>;
 
   const classification =
-    data.gpa >= 4.0 ? 'Distinction' :
-    data.gpa >= 3.0 ? 'Merit' :
-    data.gpa >= 2.0 ? 'Credit' :
-    data.gpa >= 1.0 ? 'Pass' : 'Below Pass';
+    data.gpa >= 3.75 ? 'Distinction' :
+    data.gpa >= 3.25 ? 'Meritorious' :
+    data.gpa >= 2.68 ? 'Credit' :
+    'Pass';
 
   const years = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
 

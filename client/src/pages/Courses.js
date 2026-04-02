@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import API from '../api';
 
-const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'];
+const GRADES = ['A+', 'A', 'B+', 'B', 'C+', 'C'];
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4'];
 
 export default function Courses() {

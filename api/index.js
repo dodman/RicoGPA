@@ -223,7 +223,7 @@ app.get('/api/gpa/forecast', auth, async (req, res) => {
   try {
     const sql = getSQL();
     const { target, remainingCredits } = req.query;
-    const remaining = Number(remainingCredits) || 60;
+    const remaining = Number(remainingCredits) || 8;
     const classification = CLASSIFICATIONS[target];
     if (!classification) return res.status(400).json({ message: 'Invalid target. Use: pass, credit, merit, distinction' });
 
@@ -234,21 +234,34 @@ app.get('/api/gpa/forecast', auth, async (req, res) => {
     const neededPoints = neededTotal - totalPoints;
     const neededGPA = remaining > 0 ? +(neededPoints / remaining).toFixed(4) : 0;
 
+    // Find the minimum grade needed
+    const GRADE_SCALE = [
+      ['C', 0], ['C+', 1], ['B', 2], ['B+', 3], ['A', 4], ['A+', 5]
+    ];
+
     let advice = '';
     if (neededGPA <= 0) {
       advice = `You have already reached ${classification.label}! Keep it up.`;
     } else if (neededGPA > 5.0) {
-      advice = `Unfortunately, reaching ${classification.label} is not possible with ${remaining} remaining credits. Consider adding more credits or adjusting your target.`;
+      advice = `Unfortunately, reaching ${classification.label} is not possible with ${remaining} remaining course units. Consider adding more courses or adjusting your target.`;
     } else {
-      const sorted = Object.entries(GRADE_MAP).sort((a, b) => a[1] - b[1]);
       let gradeLabel = 'A+';
-      for (const [label, pts] of sorted) {
+      for (const [label, pts] of GRADE_SCALE) {
         if (pts >= neededGPA) { gradeLabel = label; break; }
       }
-      advice = `You need around a ${gradeLabel} average (${neededGPA} GPA) in your remaining ${remaining} credits to reach ${classification.label}.`;
+      advice = `You need an average of ${gradeLabel} or better (${neededGPA.toFixed(2)} GPA) across your remaining ${remaining} course units to reach ${classification.label}.`;
     }
 
-    res.json({ currentGPA: gpa, totalCredits, targetLabel: classification.label, targetGPA, remainingCredits: remaining, neededGPA, advice });
+    res.json({
+      currentGPA: gpa,
+      totalCredits,
+      totalPoints,
+      targetLabel: classification.label,
+      targetGPA,
+      remainingCredits: remaining,
+      neededGPA,
+      advice,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

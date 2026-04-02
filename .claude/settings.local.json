@@ -33,7 +33,8 @@
       "Bash(curl -s -X POST https://ricogpa.vercel.app/api/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"finaltest@test.com\"\",\"\"password\"\":\"\"test1234\"\"}')",
       "Bash(curl -s -X POST https://ricogpa.vercel.app/api/auth/register -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"livetest@test.com\"\",\"\"password\"\":\"\"test1234\"\"}')",
       "Bash(curl -s https://ricogpa.vercel.app/api)",
-      "Bash(curl -s -X POST https://ricogpa.vercel.app/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"livetest@test.com\"\",\"\"password\"\":\"\"test1234\"\"}')"
+      "Bash(curl -s -X POST https://ricogpa.vercel.app/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"email\"\":\"\"livetest@test.com\"\",\"\"password\"\":\"\"test1234\"\"}')",
+      "Bash(curl -s -X POST https://ricogpa.vercel.app/api/auth/login -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"livetest@test.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"test1234\"\"\"\"}')"
     ]
   }
 }

@@ -64,6 +64,7 @@ export default function Forecast() {
             <div className="card">
               <h3>Current GPA</h3>
               <p className="big-number">{result.currentGPA.toFixed(2)}</p>
+              <span>{result.totalCredits} units completed</span>
             </div>
             <div className="card">
               <h3>Target GPA</h3>
@@ -71,9 +72,9 @@ export default function Forecast() {
               <span className="badge">{result.targetLabel}</span>
             </div>
             <div className="card">
-              <h3>Needed GPA</h3>
+              <h3>Needed Avg in Remaining</h3>
               <p className="big-number">{result.neededGPA.toFixed(2)}</p>
-              <span>in remaining {result.remainingCredits} credits</span>
+              <span>across {result.remainingCredits} units</span>
             </div>
           </div>
           <div className="advice-box">

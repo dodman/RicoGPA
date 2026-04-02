@@ -3,14 +3,16 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
-const { PrismaPg } = require('@prisma/adapter-pg');
+const { PrismaNeon } = require('@prisma/adapter-neon');
+const { neon } = require('@neondatabase/serverless');
 const { GRADE_MAP, CLASSIFICATIONS } = require('../server/utils/gradeMap');
 
 // --- Database ---
 let prisma;
 function getDB() {
   if (!prisma) {
-    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    const sql = neon(process.env.DATABASE_URL);
+    const adapter = new PrismaNeon(sql);
     prisma = new PrismaClient({ adapter });
   }
   return prisma;

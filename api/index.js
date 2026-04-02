@@ -49,13 +49,14 @@ function auth(req, res, next) {
 }
 
 // --- GPA Helper ---
+// grade_points already = base_grade × units, so GPA = sum(grade_points) / sum(units)
 function calcGPA(courses) {
   if (courses.length === 0) return { gpa: 0, totalCredits: 0, totalPoints: 0 };
   let totalCredits = 0;
   let totalPoints = 0;
   for (const c of courses) {
     totalCredits += c.credit_hours;
-    totalPoints += c.grade_points * c.credit_hours;
+    totalPoints += c.grade_points;
   }
   return {
     gpa: totalCredits > 0 ? +(totalPoints / totalCredits).toFixed(4) : 0,
@@ -161,12 +162,16 @@ app.post('/api/gpa/add-course', auth, async (req, res) => {
     const { name, year, courseType, creditHours, grade } = req.body;
     if (!name || !year || !courseType || !creditHours || !grade) return res.status(400).json({ message: 'All fields are required' });
 
-    const gradePoints = GRADE_MAP[grade];
-    if (gradePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
+    const basePoints = GRADE_MAP[grade];
+    if (basePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
+
+    // Grade points = base grade points × course units (Full=1, Half=0.5)
+    const units = Number(creditHours);
+    const gradePoints = basePoints * units;
 
     const id = crypto.randomUUID();
     const rows = await sql`INSERT INTO courses (id, user_id, name, year, course_type, credit_hours, grade, grade_points, "createdAt")
-      VALUES (${id}, ${req.userId}, ${name}, ${year}, ${courseType}, ${Number(creditHours)}, ${grade}, ${gradePoints}, NOW())
+      VALUES (${id}, ${req.userId}, ${name}, ${year}, ${courseType}, ${units}, ${grade}, ${gradePoints}, NOW())
       RETURNING *`;
     const course = rows[0];
     res.status(201).json({ ...course, creditHours: course.credit_hours, gradePoints: course.grade_points, courseType: course.course_type });
@@ -183,13 +188,16 @@ app.put('/api/gpa/course/:id', auth, async (req, res) => {
     const { name, year, courseType, creditHours, grade } = req.body;
     if (!name || !year || !courseType || !creditHours || !grade) return res.status(400).json({ message: 'All fields are required' });
 
-    const gradePoints = GRADE_MAP[grade];
-    if (gradePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
+    const basePoints = GRADE_MAP[grade];
+    if (basePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
+
+    const units = Number(creditHours);
+    const gradePoints = basePoints * units;
 
     const existing = await sql`SELECT id FROM courses WHERE id = ${req.params.id} AND user_id = ${req.userId}`;
     if (existing.length === 0) return res.status(404).json({ message: 'Course not found' });
 
-    const rows = await sql`UPDATE courses SET name = ${name}, year = ${year}, course_type = ${courseType}, credit_hours = ${Number(creditHours)}, grade = ${grade}, grade_points = ${gradePoints} WHERE id = ${req.params.id} RETURNING *`;
+    const rows = await sql`UPDATE courses SET name = ${name}, year = ${year}, course_type = ${courseType}, credit_hours = ${units}, grade = ${grade}, grade_points = ${gradePoints} WHERE id = ${req.params.id} RETURNING *`;
     const course = rows[0];
     res.json({ ...course, creditHours: course.credit_hours, gradePoints: course.grade_points, courseType: course.course_type });
   } catch (err) {

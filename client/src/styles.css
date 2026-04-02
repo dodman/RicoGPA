@@ -122,6 +122,51 @@ input:focus, select:focus {
 }
 .btn-delete:hover { background: #c0392b; }
 
+.btn-edit {
+  background: #f39c12;
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-edit:hover { background: #d68910; }
+
+.btn-save {
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-save:hover { background: #1e8449; }
+
+.btn-cancel {
+  background: #95a5a6;
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.btn-cancel:hover { background: #7f8c8d; }
+
+.action-btns {
+  display: flex;
+  gap: 6px;
+}
+
+/* Inline edit inputs */
+table input, table select {
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
 /* Error / Success */
 .error {
   color: #e74c3c;

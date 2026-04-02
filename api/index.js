@@ -158,6 +158,28 @@ app.post('/api/gpa/add-course', auth, async (req, res) => {
   }
 });
 
+// PUT /api/gpa/course/:id — edit a course
+app.put('/api/gpa/course/:id', auth, async (req, res) => {
+  try {
+    const sql = getSQL();
+    const { name, year, courseType, creditHours, grade } = req.body;
+    if (!name || !year || !courseType || !creditHours || !grade) return res.status(400).json({ message: 'All fields are required' });
+
+    const gradePoints = GRADE_MAP[grade];
+    if (gradePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
+
+    const existing = await sql`SELECT id FROM courses WHERE id = ${req.params.id} AND user_id = ${req.userId}`;
+    if (existing.length === 0) return res.status(404).json({ message: 'Course not found' });
+
+    const rows = await sql`UPDATE courses SET name = ${name}, year = ${year}, course_type = ${courseType}, credit_hours = ${Number(creditHours)}, grade = ${grade}, grade_points = ${gradePoints} WHERE id = ${req.params.id} RETURNING *`;
+    const course = rows[0];
+    res.json({ ...course, creditHours: course.credit_hours, gradePoints: course.grade_points, courseType: course.course_type });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 app.delete('/api/gpa/course/:id', auth, async (req, res) => {
   try {
     const sql = getSQL();

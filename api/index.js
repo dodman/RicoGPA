@@ -82,7 +82,7 @@ app.post('/api/auth/register', async (req, res) => {
     res.status(201).json({ token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -103,7 +103,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -121,7 +121,7 @@ app.get('/api/gpa/me', auth, async (req, res) => {
     res.json({ gpa, totalCredits, totalCourses: courses.length, byYear });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -133,7 +133,7 @@ app.get('/api/gpa/courses', auth, async (req, res) => {
     res.json(mapped);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -154,7 +154,7 @@ app.post('/api/gpa/add-course', auth, async (req, res) => {
     res.status(201).json({ ...course, creditHours: course.credit_hours, gradePoints: course.grade_points, courseType: course.course_type });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -167,7 +167,7 @@ app.delete('/api/gpa/course/:id', auth, async (req, res) => {
     res.json({ message: 'Course deleted' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -203,7 +203,7 @@ app.get('/api/gpa/forecast', auth, async (req, res) => {
     res.json({ currentGPA: gpa, totalCredits, targetLabel: classification.label, targetGPA, remainingCredits: remaining, neededGPA, advice });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

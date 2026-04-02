@@ -4,18 +4,12 @@
   "private": true,
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "@prisma/adapter-neon": "^7.6.0",
-    "@prisma/adapter-pg": "^7.6.0",
-    "@prisma/client": "^7.6.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.20.0",
-    "prisma": "^7.6.0"
+    "jsonwebtoken": "^9.0.2"
   },
   "scripts": {
-    "postinstall": "prisma generate --schema=server/prisma/schema.prisma",
     "build": "cd client && npm install && npm run build"
   }
 }

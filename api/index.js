@@ -2,20 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
-const { PrismaNeon } = require('@prisma/adapter-neon');
 const { neon } = require('@neondatabase/serverless');
-const { GRADE_MAP, CLASSIFICATIONS } = require('../server/utils/gradeMap');
+
+// Grade mapping
+const GRADE_MAP = {
+  'A+': 5.0, 'A': 5.0, 'B+': 4.0, 'B': 3.0,
+  'C+': 2.0, 'C': 1.0, 'D': 0.5, 'F': 0.0,
+};
+const CLASSIFICATIONS = {
+  distinction: { label: 'Distinction', minGPA: 4.0 },
+  merit:       { label: 'Merit',       minGPA: 3.0 },
+  credit:      { label: 'Credit',      minGPA: 2.0 },
+  pass:        { label: 'Pass',        minGPA: 1.0 },
+};
 
 // --- Database ---
-let prisma;
-function getDB() {
-  if (!prisma) {
-    const sql = neon(process.env.DATABASE_URL);
-    const adapter = new PrismaNeon(sql);
-    prisma = new PrismaClient({ adapter });
-  }
-  return prisma;
+function getSQL() {
+  return neon(process.env.DATABASE_URL);
 }
 
 // --- Auth Middleware ---
@@ -40,8 +43,8 @@ function calcGPA(courses) {
   let totalCredits = 0;
   let totalPoints = 0;
   for (const c of courses) {
-    totalCredits += c.creditHours;
-    totalPoints += c.gradePoints * c.creditHours;
+    totalCredits += c.credit_hours;
+    totalPoints += c.grade_points * c.credit_hours;
   }
   return {
     gpa: totalCredits > 0 ? +(totalPoints / totalCredits).toFixed(4) : 0,
@@ -56,43 +59,42 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/api', (req, res) => res.json({
-  status: 'RICOGPA API running',
-  hasDB: !!process.env.DATABASE_URL,
-  hasJWT: !!process.env.JWT_SECRET,
-  envKeys: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('JWT') || k.includes('VERCEL'))
-}));
+app.get('/api', (req, res) => res.json({ status: 'RICOGPA API running' }));
 
 // --- Auth Routes ---
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const db = getDB();
+    const sql = getSQL();
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
     if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters' });
 
-    const existing = await db.user.findUnique({ where: { email: email.toLowerCase() } });
-    if (existing) return res.status(400).json({ message: 'Email already registered' });
+    const existing = await sql`SELECT id FROM "User" WHERE email = ${email.toLowerCase()}`;
+    if (existing.length > 0) return res.status(400).json({ message: 'Email already registered' });
 
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
-    const user = await db.user.create({ data: { email: email.toLowerCase(), password: hashed } });
+    const id = crypto.randomUUID();
+
+    const rows = await sql`INSERT INTO "User" (id, email, password, "createdAt") VALUES (${id}, ${email.toLowerCase()}, ${hashed}, NOW()) RETURNING id, email`;
+    const user = rows[0];
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.status(201).json({ token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error', debug: err.message, code: err.code });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const db = getDB();
+    const sql = getSQL();
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
 
-    const user = await db.user.findUnique({ where: { email: email.toLowerCase() } });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+    const rows = await sql`SELECT * FROM "User" WHERE email = ${email.toLowerCase()}`;
+    if (rows.length === 0) return res.status(400).json({ message: 'Invalid credentials' });
+    const user = rows[0];
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(400).json({ message: 'Invalid credentials' });
@@ -101,80 +103,83 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ token, user: { id: user.id, email: user.email } });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 // --- GPA Routes (all protected) ---
 app.get('/api/gpa/me', auth, async (req, res) => {
   try {
-    const db = getDB();
-    const courses = await db.course.findMany({ where: { userId: req.userId }, orderBy: { createdAt: 'desc' } });
+    const sql = getSQL();
+    const courses = await sql`SELECT * FROM courses WHERE user_id = ${req.userId} ORDER BY "createdAt" DESC`;
     const { gpa, totalCredits } = calcGPA(courses);
     const byYear = {};
     for (const c of courses) {
       if (!byYear[c.year]) byYear[c.year] = [];
-      byYear[c.year].push(c);
+      byYear[c.year].push({ ...c, creditHours: c.credit_hours, gradePoints: c.grade_points, courseType: c.course_type });
     }
     res.json({ gpa, totalCredits, totalCourses: courses.length, byYear });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 app.get('/api/gpa/courses', auth, async (req, res) => {
   try {
-    const db = getDB();
-    const courses = await db.course.findMany({ where: { userId: req.userId }, orderBy: [{ year: 'asc' }, { createdAt: 'desc' }] });
-    res.json(courses);
+    const sql = getSQL();
+    const courses = await sql`SELECT * FROM courses WHERE user_id = ${req.userId} ORDER BY year ASC, "createdAt" DESC`;
+    const mapped = courses.map(c => ({ ...c, creditHours: c.credit_hours, gradePoints: c.grade_points, courseType: c.course_type }));
+    res.json(mapped);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 app.post('/api/gpa/add-course', auth, async (req, res) => {
   try {
-    const db = getDB();
+    const sql = getSQL();
     const { name, year, courseType, creditHours, grade } = req.body;
     if (!name || !year || !courseType || !creditHours || !grade) return res.status(400).json({ message: 'All fields are required' });
 
     const gradePoints = GRADE_MAP[grade];
     if (gradePoints === undefined) return res.status(400).json({ message: 'Invalid grade' });
 
-    const course = await db.course.create({
-      data: { userId: req.userId, name, year, courseType, creditHours: Number(creditHours), grade, gradePoints },
-    });
-    res.status(201).json(course);
+    const id = crypto.randomUUID();
+    const rows = await sql`INSERT INTO courses (id, user_id, name, year, course_type, credit_hours, grade, grade_points, "createdAt")
+      VALUES (${id}, ${req.userId}, ${name}, ${year}, ${courseType}, ${Number(creditHours)}, ${grade}, ${gradePoints}, NOW())
+      RETURNING *`;
+    const course = rows[0];
+    res.status(201).json({ ...course, creditHours: course.credit_hours, gradePoints: course.grade_points, courseType: course.course_type });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 app.delete('/api/gpa/course/:id', auth, async (req, res) => {
   try {
-    const db = getDB();
-    const course = await db.course.findFirst({ where: { id: req.params.id, userId: req.userId } });
-    if (!course) return res.status(404).json({ message: 'Course not found' });
-    await db.course.delete({ where: { id: req.params.id } });
+    const sql = getSQL();
+    const rows = await sql`SELECT id FROM courses WHERE id = ${req.params.id} AND user_id = ${req.userId}`;
+    if (rows.length === 0) return res.status(404).json({ message: 'Course not found' });
+    await sql`DELETE FROM courses WHERE id = ${req.params.id}`;
     res.json({ message: 'Course deleted' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 
 app.get('/api/gpa/forecast', auth, async (req, res) => {
   try {
-    const db = getDB();
+    const sql = getSQL();
     const { target, remainingCredits } = req.query;
     const remaining = Number(remainingCredits) || 60;
     const classification = CLASSIFICATIONS[target];
     if (!classification) return res.status(400).json({ message: 'Invalid target. Use: pass, credit, merit, distinction' });
 
-    const courses = await db.course.findMany({ where: { userId: req.userId } });
+    const courses = await sql`SELECT * FROM courses WHERE user_id = ${req.userId}`;
     const { gpa, totalCredits, totalPoints } = calcGPA(courses);
     const targetGPA = classification.minGPA;
     const neededTotal = targetGPA * (totalCredits + remaining);
@@ -198,7 +203,7 @@ app.get('/api/gpa/forecast', auth, async (req, res) => {
     res.json({ currentGPA: gpa, totalCredits, targetLabel: classification.label, targetGPA, remainingCredits: remaining, neededGPA, advice });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', debug: err.message });
   }
 });
 

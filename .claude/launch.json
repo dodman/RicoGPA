@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "flare-dev",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/macbook/Desktop/flare && npx next dev -p $PORT"],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}

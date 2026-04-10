@@ -47,15 +47,12 @@ async function ensureSchema() {
 // Run migration on cold start + bootstrap admin
 async function bootstrap() {
   await ensureSchema();
-  // Auto-promote the first registered user to admin (one-time bootstrap)
+  // Ensure dodmanc@yahoo.com is always admin
   const sql = getSQL();
-  const admins = await sql`SELECT id FROM "User" WHERE role = 'admin' LIMIT 1`;
-  if (admins.length === 0) {
-    const first = await sql`SELECT id, email FROM "User" ORDER BY "createdAt" ASC LIMIT 1`;
-    if (first.length > 0) {
-      await sql`UPDATE "User" SET role = 'admin' WHERE id = ${first[0].id}`;
-      console.log(`Bootstrapped admin: ${first[0].email}`);
-    }
+  const target = await sql`SELECT id, role FROM "User" WHERE email = 'dodmanc@yahoo.com'`;
+  if (target.length > 0 && target[0].role !== 'admin') {
+    await sql`UPDATE "User" SET role = 'admin' WHERE id = ${target[0].id}`;
+    console.log('Bootstrapped admin: dodmanc@yahoo.com');
   }
 }
 bootstrap().catch(err => console.error('Bootstrap error:', err));

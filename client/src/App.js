@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import AddCourse from './pages/AddCourse';
 import Courses from './pages/Courses';
 import Forecast from './pages/Forecast';
+import Admin from './pages/Admin';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ function AppRoutes() {
           <Route path="/add-course" element={<PrivateRoute><AddCourse /></PrivateRoute>} />
           <Route path="/courses" element={<PrivateRoute><Courses /></PrivateRoute>} />
           <Route path="/forecast" element={<PrivateRoute><Forecast /></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><Admin /></PrivateRoute>} />
         </Routes>
       </div>
     </>

@@ -20,6 +20,7 @@ export default function Navbar() {
             <Link to="/add-course">Add Course</Link>
             <Link to="/courses">Courses</Link>
             <Link to="/forecast">Forecast</Link>
+            {user?.role === 'admin' && <Link to="/admin" className="nav-admin">Admin</Link>}
             <button onClick={handleLogout} className="btn-link">Logout</button>
           </>
         ) : (

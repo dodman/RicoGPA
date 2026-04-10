@@ -310,6 +310,169 @@ th {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* Admin Panel */
+.admin-page h2 {
+  margin-bottom: 16px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.admin-tab {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  position: relative;
+}
+
+.admin-tab:hover { color: #1a1a2e; }
+.admin-tab.active { color: #4361ee; border-bottom-color: #4361ee; font-weight: 600; }
+
+.admin-badge {
+  background: #e74c3c;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.admin-search {
+  margin-bottom: 16px;
+  max-width: 360px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.btn-view { background: #4361ee; }
+.btn-view:hover { background: #3a56d4; }
+.btn-block { background: #e67e22; }
+.btn-block:hover { background: #d35400; }
+.btn-reset { background: #8e44ad; }
+.btn-reset:hover { background: #7d3c98; }
+.btn-promote { background: #27ae60; }
+.btn-promote:hover { background: #1e8449; }
+.btn-demote { background: #95a5a6; }
+.btn-demote:hover { background: #7f8c8d; }
+.btn-approve { background: #27ae60; }
+.btn-approve:hover { background: #1e8449; }
+.btn-reject { background: #e74c3c; }
+.btn-reject:hover { background: #c0392b; }
+
+.blocked-row { background: #fef2f2; }
+
+.admin-role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.admin-role-badge.admin { background: #4361ee; color: #fff; }
+.admin-role-badge.user { background: #eee; color: #555; }
+
+.admin-status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.admin-status-badge.pending { background: #fef3c7; color: #92400e; }
+.admin-status-badge.approved { background: #d1fae5; color: #065f46; }
+.admin-status-badge.rejected { background: #fee2e2; color: #991b1b; }
+
+.nav-admin {
+  color: #ffd700 !important;
+  font-weight: 600;
+}
+
+/* Admin Modal */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.admin-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.admin-modal-sm {
+  max-width: 420px;
+}
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.admin-modal-header h3 {
+  margin: 0;
+}
+
+.admin-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+}
+.admin-modal-close:hover { color: #333; }
+
+.admin-modal-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .navbar {
